@@ -10,16 +10,16 @@ class TestPublisherSubscriber : public ::testing::Test
 {
 protected:
     std::shared_ptr<rclcpp::executors::MultiThreadedExecutor> executor;
-    std::shared_ptr<PublisherComponent> publisher_node;
-    std::shared_ptr<SubscriberComponent> subscriber_node;
+    std::shared_ptr<composable_nodes::PublisherComponent> publisher_node;
+    std::shared_ptr<composable_nodes::SubscriberComponent> subscriber_node;
     std::thread spin_thread;
 
     void SetUp() override
     {
         rclcpp::init(0, nullptr);
 
-        publisher_node = std::make_shared<PublisherComponent>(rclcpp::NodeOptions());
-        subscriber_node = std::make_shared<SubscriberComponent>(rclcpp::NodeOptions());
+        publisher_node = std::make_shared<composable_nodes::PublisherComponent>(rclcpp::NodeOptions());
+        subscriber_node = std::make_shared<composable_nodes::SubscriberComponent>(rclcpp::NodeOptions());
 
         executor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
         executor->add_node(publisher_node);
@@ -48,5 +48,9 @@ TEST_F(TestPublisherSubscriber, ReceivesMessage)
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    int result = RUN_ALL_TESTS();
+    if (result == 0) {
+        std::cout << "All tests passed" << std::endl;
+    }
+    return result;
 }

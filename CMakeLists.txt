@@ -26,24 +26,13 @@ target_compile_definitions(composable_nodes
   PRIVATE "COMPOSABLE_NODES_DLL")
 ament_target_dependencies(composable_nodes rclcpp rclcpp_components std_msgs)
 
+rclcpp_components_register_nodes(composable_nodes "composable_nodes::PublisherComponent")
+rclcpp_components_register_nodes(composable_nodes "composable_nodes::SubscriberComponent")
+
 if(NOT WIN32)
   ament_environment_hooks(
     "${ament_cmake_package_templates_ENVIRONMENT_HOOK_LIBRARY_PATH}")
 endif()
-
-add_executable(composable_publisher src/minimal_publisher.cpp)
-target_link_libraries(composable_publisher composable_nodes)
-ament_target_dependencies(composable_publisher
-  rclcpp)
-
-add_executable(composable_subscriber src/minimal_subscriber.cpp)
-target_link_libraries(composable_subscriber composable_nodes)
-ament_target_dependencies(composable_subscriber
-  rclcpp)
-
-# add_executable(composable_node src/composable_node.cpp)
-# target_link_libraries(composable_node composable_nodes)
-# ament_target_dependencies(composable_node rclcpp class_loader)
 
 install(TARGETS
   composable_nodes
@@ -51,13 +40,14 @@ install(TARGETS
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
 
-install(TARGETS
-  composable_publisher
-  composable_subscriber
-  DESTINATION lib/${PROJECT_NAME})
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
+  find_package(launch_testing_ament_cmake REQUIRED)
   
   ament_add_gtest(test_publisher_subscriber test/test_publisher_subscriber.cpp)
   target_include_directories(test_publisher_subscriber PUBLIC
@@ -66,6 +56,9 @@ if(BUILD_TESTING)
   )
   ament_target_dependencies(test_publisher_subscriber rclcpp std_msgs)
   target_link_libraries(test_publisher_subscriber composable_nodes)
+
+  add_launch_test(launch/test_composable_pub_sub.launch.py)
+
 endif()
 
 ament_package()
